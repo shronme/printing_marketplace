@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.persistence.database import get_db
 from app.models.user import User
-from app.schemas import LoginRequest, LoginResponse, UserResponse
+from app.schemas import LoginRequest, LoginResponse, LogoutResponse, UserResponse
 from app.utils.auth import create_access_token
+from app.utils.dependencies import get_current_user
 from app.utils.enums import UserRole
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -59,4 +60,18 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
             created_at=user.created_at
         )
     )
+
+
+@router.post("/logout", response_model=LogoutResponse, status_code=status.HTTP_200_OK)
+async def logout(current_user: User = Depends(get_current_user)):
+    """
+    Logout endpoint.
+    
+    Since JWT tokens are stateless, this endpoint primarily serves as a confirmation.
+    The client should discard the token after calling this endpoint.
+    
+    Returns:
+        Success message
+    """
+    return LogoutResponse(message="Successfully logged out")
 

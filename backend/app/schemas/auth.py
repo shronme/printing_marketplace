@@ -31,3 +31,8 @@ class LoginResponse(BaseModel):
     token_type: str = "bearer"
     user: UserResponse
 
+
+class LogoutResponse(BaseModel):
+    """Response schema for logout endpoint."""
+    message: str = "Successfully logged out"
+

@@ -71,9 +71,9 @@ export async function apiRequest<T>(
   options?: RequestInit
 ): Promise<T> {
   const token = getAuthToken()
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options?.headers,
+    ...(options?.headers as Record<string, string> || {}),
   }
 
   // Add authorization header if token exists
@@ -120,9 +120,23 @@ export async function login(request: LoginRequest): Promise<LoginResponse> {
   return response
 }
 
-// Logout (clears local storage)
-export function logout(): void {
-  removeAuthToken()
-  removeUser()
+// Logout API call and clear local storage
+export async function logout(): Promise<void> {
+  try {
+    // Call backend logout endpoint if we have a token
+    const token = getAuthToken()
+    if (token) {
+      await apiRequest<{ message: string }>('/api/auth/logout', {
+        method: 'POST',
+      })
+    }
+  } catch (error) {
+    // Even if the API call fails, we should still clear local storage
+    console.error('Logout API call failed:', error)
+  } finally {
+    // Always clear local storage regardless of API call result
+    removeAuthToken()
+    removeUser()
+  }
 }
 
