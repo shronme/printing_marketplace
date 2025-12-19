@@ -46,6 +46,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3000
       NODE_ENV: development
+      WATCHPACK_POLLING: "true"
     volumes:
       - ./frontend:/app
       - /app/node_modules

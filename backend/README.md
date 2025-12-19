@@ -23,6 +23,7 @@ Create `.env.local`:
 DATABASE_URL="postgresql://user:password@localhost:5432/printing_marketplace"
 FRONTEND_URL=http://localhost:3001
 PORT=3000
+JWT_SECRET_KEY="your-secret-key-change-in-production"
 ```
 
 4. Run migrations:

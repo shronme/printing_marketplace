@@ -1,0 +1,15 @@
+---
+alwaysApply: true
+---
+
+1. **Schema Validation:** All AI outputs must validate against predefined JSON Schemas before commit.
+2. **Prompt Snapshotting:** Save every prompt + context + output pair under `.prompts/` for reproducibility.
+3. **Determinism:** Same input commit → identical outputs (normalized timestamps only).
+4. **Spec Conformance:** If contracts exist, extracted artifacts must match or CI fails.
+5. **Secret Protection:** Run secret and license scans pre‑commit.
+6. **Allowlist Enforcement:** Only approved dependencies may be added by AI.
+7. **Auto‑Tests:** Each AI‑generated extractor or renderer must include at least one passing unit test.
+8. **Human Review:** Engineers approve diffs for accuracy and clarity; AI suggestions without citations are rejected.
+9. **Definition of Done:** When a task doesn't include the defintion of done for the task, assume that the definition of done is that all the tests and linters are passing
+10. **Handling Migrations** Always use autogeneration instead of manually creating the files
+11. **Security is routes** When created a new API route in the backend, and the route is meant to fetch by ID, always use UUID and not the numerical ID.

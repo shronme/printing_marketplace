@@ -34,10 +34,11 @@ architect, reviewer, and prompt designer.
 - Infrastructure: **Railway** (simplified deployment)
 
 ### Frontend (Lightweight MVP)
-- **Single Next.js app** with role-based routing
+- **Single Next.js app** with role-based routing ✅ Created
 - Role-based UI for CUSTOMER and PRINTER
+- Explicit paths: `/customer/*` and `/printer/*` (not route groups)
 - Shared components and authentication
-- Can be added after backend stabilization
+- Docker setup for local development
 - Architecture: Single app with route protection based on user role
 
 ---
@@ -106,7 +107,7 @@ Create a clean, extensible foundation that Cursor can safely build upon.
 
 **Deliverables**
 - Backend repo (Python/FastAPI) ✅ Already created
-- Frontend repo structure (Next.js - optional for MVP)
+- Frontend repo structure (Next.js) ✅ Already created
 - Linting & formatting
 - Folder structure
 
@@ -117,14 +118,16 @@ Create a clean, extensible foundation that Cursor can safely build upon.
 - `app/persistence` - Database layer
 - `alembic/` - Migrations
 
-**Frontend Structure (when added):**
+**Frontend Structure:** ✅ Already created
 - Single Next.js app with role-based routing
-- `app/(customer)/` - Customer-only routes
-- `app/(printer)/` - Printer-only routes
-- `app/(auth)/` - Shared auth pages
+- `app/customer/` - Customer routes (`/customer/dashboard`, `/customer/jobs`)
+- `app/printer/` - Printer routes (`/printer/dashboard`, `/printer/jobs`, `/printer/bids`)
+- `app/(auth)/` - Shared auth pages (`/auth/login`, `/auth/signup`) - route group
 - Shared components and layouts
+- API client utilities (`lib/api.ts`)
+- Docker configuration for local development
 
-**Note:** Backend scaffolding is complete. Frontend can be added later.
+**Note:** Both backend and frontend scaffolding are complete. Ready for EPIC 0 (domain modeling).
 
 ### Task 0.2 – Domain Modeling & Schema
 **Estimate:** 0.5–1 day

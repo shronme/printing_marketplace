@@ -17,7 +17,11 @@ load_dotenv()
 
 # Import Base from your app
 from app.persistence.database import Base
-from app.domain.models import User  # Import all models so Alembic can detect them
+# Import all models so Alembic can detect them
+from app.models import (
+    User, CustomerProfile, PrinterProfile, PrintingJob, 
+    Bid, Agreement, Rating
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
