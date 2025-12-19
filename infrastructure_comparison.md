@@ -72,12 +72,19 @@
 - ✅ Easy local development
 - ✅ Automatic HTTPS and deployments
 - ✅ Great for MVP speed
+- ✅ **Excellent monorepo support** - root directory per service, auto-detection
 
 **Cons:**
 - ❌ Less control over infrastructure
 - ❌ Smaller scale limits than AWS
 - ❌ Vendor lock-in (but easy to migrate)
 - ❌ Limited advanced AWS integrations
+
+**Monorepo Support:**
+- ✅ **Isolated Monorepos:** Set root directory per service (e.g., `/backend`, `/frontend`)
+- ✅ **Shared Monorepos:** Auto-detects Yarn workspaces/Lerna, configures services automatically
+- ✅ Each service can have its own build/start commands
+- ✅ Deployments only trigger when relevant directory changes
 
 **Cost Estimate (MVP):**
 - Starter: $5/month + $0.000463/GB-hour
@@ -101,12 +108,19 @@
 - ✅ Automatic SSL and deployments
 - ✅ Simple Dockerfile deployment
 - ✅ Good documentation
+- ✅ **Strong monorepo support** - root directory + build filters
 
 **Cons:**
 - ❌ Free tier spins down after inactivity (cold starts)
 - ❌ Less mature than Railway
 - ❌ Limited AWS integrations
 - ❌ Scaling can get expensive
+
+**Monorepo Support:**
+- ✅ **Root Directory:** Set per service (e.g., `/backend`, `/frontend`)
+- ✅ **Build Filters:** Configure glob patterns to include/exclude paths
+- ✅ Deployments only trigger on changes in relevant directories
+- ✅ Each service deployed independently
 
 **Cost Estimate (MVP):**
 - Free tier: Available (with limitations)
@@ -261,6 +275,118 @@
 
 ---
 
+## Monorepo Support Comparison
+
+### Railway Monorepo Support ✅
+
+**How it works:**
+1. **Multiple Services:** Create separate services for frontend and backend
+2. **Root Directory:** Set root directory per service:
+   - Backend service: Root = `/backend`
+   - Frontend service: Root = `/frontend`
+3. **Auto-detection:** Railway can auto-detect JavaScript monorepos (Yarn workspaces, Lerna)
+4. **Independent Deployments:** Each service deploys independently when its directory changes
+
+**Example Setup:**
+```
+your-repo/
+├── backend/
+│   ├── src/
+│   ├── package.json
+│   └── Dockerfile (or Railway auto-detects)
+├── frontend/
+│   ├── src/
+│   ├── package.json
+│   └── Dockerfile
+└── package.json (workspace root, optional)
+```
+
+**Configuration:**
+- Each service gets its own Railway service
+- Set "Root Directory" in service settings
+- Configure build/start commands per service
+- Deployments only trigger on relevant file changes
+
+**Pros:**
+- ✅ Very intuitive setup
+- ✅ Automatic detection for common monorepo tools
+- ✅ Independent scaling per service
+- ✅ Separate environment variables per service
+
+---
+
+### Render Monorepo Support ✅
+
+**How it works:**
+1. **Multiple Services:** Create separate web services for frontend and backend
+2. **Root Directory:** Set root directory per service:
+   - Backend service: Root = `/backend`
+   - Frontend service: Root = `/frontend`
+3. **Build Filters:** Optional glob patterns to fine-tune deployment triggers
+4. **Independent Deployments:** Each service deploys only when its directory changes
+
+**Example Setup:**
+```
+your-repo/
+├── backend/
+│   ├── src/
+│   ├── package.json
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   ├── package.json
+│   └── Dockerfile
+└── .gitignore
+```
+
+**Configuration:**
+- Create separate "Web Service" for each app
+- Set "Root Directory" in service settings
+- Optional: Configure build filters (e.g., ignore `*.md` changes)
+- Each service has independent environment variables
+
+**Pros:**
+- ✅ Simple root directory configuration
+- ✅ Build filters for fine-grained control
+- ✅ Independent scaling and configuration
+- ✅ Free tier available for testing
+
+---
+
+### Comparison: Railway vs Render for Monorepos
+
+| Feature | Railway | Render |
+|---------|---------|--------|
+| Root Directory | ✅ Yes | ✅ Yes |
+| Auto-detection | ✅ Yarn/Lerna | ❌ Manual setup |
+| Build Filters | ❌ No | ✅ Yes (glob patterns) |
+| Setup Complexity | ⭐⭐⭐⭐⭐ Very Easy | ⭐⭐⭐⭐ Easy |
+| Documentation | Excellent | Good |
+| **Winner** | **Slightly better** | Good alternative |
+
+**Verdict:** Both handle monorepos excellently. Railway has slightly better auto-detection, while Render offers more granular build filter control.
+
+---
+
+### AWS Lambda Monorepo Support ⚠️
+
+**How it works:**
+- AWS Lambda doesn't directly support monorepos
+- You need to:
+  1. Build/deploy each service separately
+  2. Use separate Lambda functions per service
+  3. Configure API Gateway routes per function
+  4. Handle build artifacts manually
+
+**Workarounds:**
+- Use AWS SAM or Serverless Framework
+- Build scripts to package only relevant directories
+- More complex CI/CD setup required
+
+**Verdict:** More complex than Railway/Render, but doable with proper tooling.
+
+---
+
 ## Recommendation Matrix
 
 ### For MVP Speed (Recommended)
@@ -270,6 +396,7 @@
 - Built-in PostgreSQL
 - Perfect for 1-engineer team
 - Easy migration later
+- **Excellent monorepo support** (root directory per service)
 
 ### For AWS Ecosystem
 **🥇 AWS Lambda** (current choice) or **🥈 AWS App Runner**
@@ -301,6 +428,7 @@
 - Better cold start performance
 - Easier debugging
 - Perfect for MVP timeline (10-14 days)
+- **Native monorepo support** - set root directory per service, auto-detects workspaces
 
 **Migration Path:**
 - Easy to migrate to AWS later if needed
@@ -324,6 +452,7 @@
 - Cold start concerns (mitigated with provisioned concurrency)
 - Requires RDS setup separately
 - More Terraform/IaC work
+- **Monorepo requires manual build/deploy setup** (more complex than Railway/Render)
 
 **Setup Complexity:** ⭐⭐⭐ (Moderate)
 **Time Investment:** 2-3 days on infrastructure
