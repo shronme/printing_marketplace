@@ -25,23 +25,27 @@ architect, reviewer, and prompt designer.
 ## Proposed Tech Stack (Opinionated, MVP-Friendly)
 
 ### Backend
-- Language: **TypeScript**
-- Framework: **Fastify** (or NestJS if you prefer more structure)
-- ORM: **Prisma**
+- Language: **Python**
+- Framework: **FastAPI**
+- ORM: **SQLAlchemy**
+- Migrations: **Alembic**
 - Database: **PostgreSQL**
-- Auth: **AWS Cognito**
-- Infrastructure: **AWS (Lambda-first)**
+- Auth: **Auth0** or **Clerk** (Railway-friendly alternatives to Cognito)
+- Infrastructure: **Railway** (simplified deployment)
 
 ### Frontend (Lightweight MVP)
-- Next.js (optional for early internal UI)
+- **Single Next.js app** with role-based routing
+- Role-based UI for CUSTOMER and PRINTER
+- Shared components and authentication
 - Can be added after backend stabilization
+- Architecture: Single app with route protection based on user role
 
 ---
 
-## AWS Architecture Recommendation
+## Railway Architecture Recommendation
 
-### Is Lambda enough?
-**Yes — for MVP, Lambda is more than sufficient.**
+### Why Railway for MVP?
+**Yes — Railway is ideal for MVP speed and simplicity.**
 
 Your platform characteristics:
 - CRUD-heavy
@@ -49,25 +53,31 @@ Your platform characteristics:
 - No long-running processes
 - No real-time streaming
 
-### Recommended AWS Setup
+### Recommended Railway Setup
 
-| Component | AWS Service |
+| Component | Railway Service |
 |--------|-----------|
-| API Layer | API Gateway (HTTP API) |
-| Compute | AWS Lambda |
-| Database | Amazon RDS (Postgres) |
-| Auth | Amazon Cognito |
-| Notifications | SNS / SES |
-| Secrets | AWS Secrets Manager |
-| IaC | Terraform |
-| Observability | CloudWatch |
+| API Layer | Backend service (FastAPI) |
+| Compute | Railway containers (auto-scaling) |
+| Database | Railway PostgreSQL |
+| Auth | Auth0 or Clerk (external service) |
+| Notifications | SendGrid or Resend (email) |
+| Frontend | Frontend service (Next.js) |
+| Observability | Railway logs + optional Sentry |
 
-**When Lambda might break down later**
-- Real-time chat
-- High-throughput analytics
-- Complex workflows (then Step Functions help)
+**Benefits:**
+- Fast deployment (minutes vs days)
+- Built-in PostgreSQL
+- Automatic HTTPS
+- Simple monorepo support
+- Easy local development
 
-For Phase 1: **Lambda-first is the correct choice.**
+**When to migrate later:**
+- Need advanced AWS features
+- Scale beyond Railway limits
+- Complex infrastructure requirements
+
+For Phase 1: **Railway-first is the correct choice.**
 
 ---
 
@@ -95,30 +105,32 @@ Create a clean, extensible foundation that Cursor can safely build upon.
 **Estimate:** 0.5 day
 
 **Deliverables**
-- Backend repo
-- TypeScript config
+- Backend repo (Python/FastAPI) ✅ Already created
+- Frontend repo structure (Next.js - optional for MVP)
 - Linting & formatting
 - Folder structure
 
-**Cursor Prompt**
-```text
-You are a senior backend engineer.
-Scaffold a TypeScript backend project using Fastify.
-Apply clean architecture principles.
-Create folders for:
-- domain
-- services
-- api
-- persistence
-- migrations
-Do not implement business logic yet.
-```
+**Backend Structure:** ✅ Already created
+- `app/domain` - Domain models
+- `app/services` - Business logic
+- `app/api` - API routes
+- `app/persistence` - Database layer
+- `alembic/` - Migrations
+
+**Frontend Structure (when added):**
+- Single Next.js app with role-based routing
+- `app/(customer)/` - Customer-only routes
+- `app/(printer)/` - Printer-only routes
+- `app/(auth)/` - Shared auth pages
+- Shared components and layouts
+
+**Note:** Backend scaffolding is complete. Frontend can be added later.
 
 ### Task 0.2 – Domain Modeling & Schema
 **Estimate:** 0.5–1 day
 
 **Core Entities**
-- User
+- User ✅ (basic structure created in `app/domain/models.py`)
 - CustomerProfile
 - PrinterProfile
 - PrintingJob
@@ -131,8 +143,9 @@ Do not implement business logic yet.
 Based on this PRD, define the core domain entities and relationships.
 Include enums, constraints, and lifecycle states.
 Output:
-1. Prisma schema
-2. SQL DDL (Postgres)
+1. SQLAlchemy models (Python)
+2. Alembic migration
+3. Domain entities with relationships
 ```
 
 ---
@@ -142,7 +155,7 @@ Output:
 ## Goal
 Secure role-based access for customers and printers.
 
-### Task 1.1 – Authentication (AWS Cognito)
+### Task 1.1 – Authentication (Auth0 or Clerk)
 **Estimate:** 0.5–1 day
 
 **Features**
@@ -153,10 +166,11 @@ Secure role-based access for customers and printers.
 
 **Cursor Prompt**
 ```text
-Integrate AWS Cognito authentication.
-Implement JWT verification middleware.
+Integrate Auth0 (or Clerk) authentication.
+Implement JWT verification middleware for FastAPI.
 Support two roles: CUSTOMER and PRINTER.
 Protect routes accordingly.
+Use python-jose for JWT verification.
 ```
 
 ### Task 1.2 – Profile Management
@@ -316,9 +330,10 @@ Enforce valid transitions and prevent illegal state changes.
 
 **Cursor Prompt**
 ```text
-Integrate notifications using SNS or SES.
+Integrate email notifications using SendGrid or Resend.
 Send notifications on job posting and bid state changes.
 Make delivery channel configurable.
+Use background tasks (FastAPI BackgroundTasks or Celery for async).
 ```
 
 ---
@@ -340,35 +355,39 @@ Expose aggregated ratings on printer profiles.
 
 ---
 
-# EPIC 7 – Infrastructure & Deployment (AWS)
+# EPIC 7 – Infrastructure & Deployment (Railway)
 
 ## Goal
 Production-ready MVP infrastructure with minimal complexity.
 
-### Task 7.1 – Terraform Base
-**Estimate:** 1 day
+### Task 7.1 – Railway Setup
+**Estimate:** 0.5 day ✅ (Mostly complete - see railway_setup_guide.md)
 
 **Resources**
-- API Gateway
-- Lambda functions
-- RDS (Postgres)
-- Cognito
-- Secrets Manager
+- Backend service (Python/FastAPI) ✅ Configured
+- PostgreSQL database
+- Frontend service (Next.js - when added)
+- Environment variables
 
-**Cursor Prompt**
-```text
-Generate Terraform code for an AWS Lambda-based backend.
-Include API Gateway, RDS Postgres, Cognito, and Secrets Manager.
-Use environment-based configuration.
-```
+**Setup Steps:**
+1. Create Railway project
+2. Add PostgreSQL database
+3. Deploy backend service (root: `backend`)
+4. Configure environment variables
+5. Run database migrations
+6. (Optional) Deploy frontend service (root: `frontend`)
+
+**Note:** Railway configuration files are already created. See `railway_setup_guide.md`.
 
 ### Task 7.2 – CI/CD
 **Estimate:** 0.5 day
 
 **Cursor Prompt**
 ```text
-Set up GitHub Actions to deploy Lambda functions on merge.
-Include environment separation (dev/prod).
+Set up GitHub Actions for Railway deployment.
+Auto-deploy backend on push to main branch.
+Run database migrations automatically.
+Include environment separation (dev/prod) if needed.
 ```
 
 ---
@@ -402,14 +421,24 @@ Ensure all state changes are logged.
 
 This plan intentionally avoids premature complexity.
 
-Lambda-first is the correct architectural call for Phase 1.
+**Railway-first** is the correct architectural call for Phase 1.
+
+**Single frontend app** with role-based routing keeps MVP simple and fast.
 
 Cursor is strongest when:
 - Prompts are narrow
 - Domain rules are explicit
 - You iterate in small steps
 
+### Architecture Decisions Made:
+- ✅ **Backend:** Python/FastAPI (simpler than TypeScript for MVP)
+- ✅ **Infrastructure:** Railway (faster than AWS Lambda setup)
+- ✅ **Frontend:** Single Next.js app with role-based routing
+- ✅ **Database:** PostgreSQL via Railway
+- ✅ **Auth:** Auth0/Clerk (Railway-friendly, easier than Cognito)
+
 If you want, next I can:
 - Turn this into separate MD files per epic
 - Add Cursor "guardrail prompts" to prevent hallucinated logic
 - Create a Phase 2 work plan that introduces payments and messaging
+- Scaffold the frontend Next.js app structure

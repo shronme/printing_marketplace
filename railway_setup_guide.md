@@ -147,13 +147,45 @@ Add these variables in backend service **"Variables"**:
 FRONTEND_URL=https://your-frontend-service.up.railway.app
 ```
 
-**Note:** `PORT` is automatically set by Railway. You'll get the frontend URL after deploying frontend (if using).
+**Note:** `PORT` is automatically set by Railway. You'll get the frontend URL after deploying frontend.
 
 ---
 
-## Step 5: Configure Custom Domains (Optional)
+## Step 4: Create Frontend Service on Railway
 
-### 5.1 Backend Domain
+### 4.1 Add Frontend Service
+
+1. In Railway project, click **"+ New"**
+2. Select **"GitHub Repo"** (or **"Empty Service"** if not connected)
+3. Select same repository
+4. Railway will auto-detect it's a Next.js project
+
+### 4.2 Configure Frontend Service
+
+1. Click on the frontend service
+2. Go to **"Settings"** tab
+3. Set **Root Directory** to: `frontend`
+4. Railway will auto-detect:
+   - Build command: `npm install && npm run build`
+   - Start command: `npm start`
+
+### 4.3 Add Environment Variables
+
+Add to frontend service **"Variables"**:
+
+```
+NEXT_PUBLIC_API_URL=https://your-backend-service.up.railway.app
+```
+
+**Note:** Replace `your-backend-service` with your actual backend service URL from Railway.
+
+---
+
+## Step 5: Deploy & Test
+
+## Step 6: Configure Custom Domains (Optional)
+
+### 6.1 Backend Domain
 
 1. Go to backend service → **"Settings"** → **"Networking"**
 2. Click **"Generate Domain"** or add custom domain
@@ -161,7 +193,7 @@ FRONTEND_URL=https://your-frontend-service.up.railway.app
 
 ---
 
-## Step 6: Local Development
+## Step 7: Local Development
 
 See `backend/README.md` for detailed local development setup.
 
@@ -279,15 +311,18 @@ We can update the project plan to use one of these instead of Cognito.
 ## Summary Checklist
 
 - [x] Backend files created (FastAPI + SQLAlchemy)
+- [x] Frontend files created (Next.js with role-based routing)
 - [x] Railway configuration files ready
 - [ ] Created Railway account and project
 - [ ] Added PostgreSQL database service
 - [ ] Created backend service (root: `backend`)
-- [ ] Configured environment variables
+- [ ] Created frontend service (root: `frontend`)
+- [ ] Configured environment variables (both services)
 - [ ] Pushed code to GitHub
-- [ ] Railway auto-deployed backend
+- [ ] Railway auto-deployed both services
 - [ ] Ran database migrations (`alembic upgrade head`)
-- [ ] Tested health check endpoint (`/health`)
+- [ ] Tested backend health check endpoint (`/health`)
+- [ ] Tested frontend API connection (`/api-test`)
 - [ ] Set up local development environment
 
 ---
