@@ -15,7 +15,7 @@ class PrintingJob(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     uuid = Column(UUID(as_uuid=False), unique=True, nullable=False, default=lambda: str(uuid_lib.uuid4()), index=True)
-    customer_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    customer_profile_id = Column(Integer, ForeignKey("customer_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
     
     # Job details
     product_type = Column(String, nullable=False)  # Stores ProductType enum value as string
@@ -46,8 +46,7 @@ class PrintingJob(Base):
     completed_at = Column(DateTime(timezone=True), nullable=True)
     
     # Relationships
-    customer = relationship("User", back_populates="jobs", foreign_keys=[customer_id])
-    customer_profile = relationship("CustomerProfile", back_populates="jobs", primaryjoin="PrintingJob.customer_id == CustomerProfile.user_id", viewonly=True)
+    customer_profile = relationship("CustomerProfile", back_populates="jobs", foreign_keys=[customer_profile_id])
     bids = relationship("Bid", back_populates="job", cascade="all, delete-orphan", order_by="Bid.created_at")
     
     __table_args__ = (

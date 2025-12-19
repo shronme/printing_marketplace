@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, foreign
 from sqlalchemy.sql import func
 from app.persistence.database import Base
 import uuid as uuid_lib
@@ -46,6 +46,11 @@ class PrinterProfile(Base):
     
     # Relationships
     user = relationship("User", back_populates="printer_profile")
-    bids = relationship("Bid", back_populates="printer_profile", primaryjoin="Bid.printer_id == PrinterProfile.user_id", viewonly=True)
+    bids = relationship(
+        "Bid", 
+        back_populates="printer_profile", 
+        primaryjoin="Bid.printer_id == foreign(PrinterProfile.user_id)",
+        viewonly=True
+    )
     ratings = relationship("Rating", back_populates="printer_profile")
 

@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, String, DateTime, Integer, Numeric, Text, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, foreign
 from sqlalchemy.sql import func
 from app.persistence.database import Base
 import uuid as uuid_lib
@@ -37,7 +37,12 @@ class Bid(Base):
     # Relationships
     job = relationship("PrintingJob", back_populates="bids")
     printer = relationship("User", back_populates="bids", foreign_keys=[printer_id])
-    printer_profile = relationship("PrinterProfile", back_populates="bids", primaryjoin="Bid.printer_id == PrinterProfile.user_id", viewonly=True)
+    printer_profile = relationship(
+        "PrinterProfile", 
+        back_populates="bids", 
+        primaryjoin="Bid.printer_id == foreign(PrinterProfile.user_id)",
+        viewonly=True
+    )
     
     __table_args__ = (
         UniqueConstraint('job_id', 'printer_id', name='uq_bid_job_printer'),

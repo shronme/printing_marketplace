@@ -11,6 +11,7 @@ class LoginRequest(BaseModel):
     """Request schema for login endpoint."""
     email: EmailStr
     role: Optional[UserRole] = None  # Optional: if not provided, defaults to CUSTOMER
+    company_name: Optional[str] = None  # Required for CUSTOMER role signup
 
 
 class UserResponse(BaseModel):

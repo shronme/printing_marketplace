@@ -59,7 +59,7 @@ export default function Home() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input"
               placeholder="your@email.com"
               disabled={loading}
             />
@@ -75,7 +75,7 @@ export default function Home() {
                 const newRole = e.target.value as 'CUSTOMER' | 'PRINTER'
                 setRole(newRole)
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+              className="form-input"
               disabled={loading}
               required
             >

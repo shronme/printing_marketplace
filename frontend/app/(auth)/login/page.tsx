@@ -8,6 +8,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<'CUSTOMER' | 'PRINTER' | ''>('')
+  const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -17,9 +18,17 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      // Validate company_name for CUSTOMER role signup
+      if (role === 'CUSTOMER' && !companyName.trim()) {
+        setError('Company name is required for customer signup')
+        setLoading(false)
+        return
+      }
+
       const request: LoginRequest = {
         email: email.trim(),
         ...(role && { role: role as 'CUSTOMER' | 'PRINTER' }),
+        ...(role === 'CUSTOMER' && companyName.trim() && { company_name: companyName.trim() }),
       }
 
       const response = await login(request)
@@ -57,7 +66,7 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="form-input"
               placeholder="your@email.com"
               disabled={loading}
             />
@@ -69,8 +78,15 @@ export default function LoginPage() {
             <select
               id="role"
               value={role}
-              onChange={(e) => setRole(e.target.value as 'CUSTOMER' | 'PRINTER' | '')}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onChange={(e) => {
+                const newRole = e.target.value as 'CUSTOMER' | 'PRINTER' | ''
+                setRole(newRole)
+                // Clear company name when switching away from CUSTOMER
+                if (newRole !== 'CUSTOMER') {
+                  setCompanyName('')
+                }
+              }}
+              className="form-input"
               disabled={loading}
             >
               <option value="">Select role (defaults to Customer)</option>
@@ -81,6 +97,26 @@ export default function LoginPage() {
               If not specified, defaults to Customer. Existing users keep their current role.
             </p>
           </div>
+          {role === 'CUSTOMER' && (
+            <div>
+              <label htmlFor="companyName" className="block text-sm font-medium mb-2">
+                Company Name <span className="text-red-500">*</span>
+                <span className="text-xs font-normal text-gray-500 ml-1">(for new signups)</span>
+              </label>
+              <input
+                id="companyName"
+                type="text"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                className="form-input"
+                placeholder="Your Company Name"
+                disabled={loading}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Required for new customer signups. Users with the same company name will be linked to the same customer profile.
+              </p>
+            </div>
+          )}
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}

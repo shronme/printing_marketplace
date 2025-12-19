@@ -10,11 +10,11 @@ from app.models.user import User
 from app.utils.enums import UserRole
 from app.utils.auth import verify_token
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
     """
@@ -23,21 +23,45 @@ async def get_current_user(
     Raises:
         HTTPException: If token is invalid or user not found
     """
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     token = credentials.credentials
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Empty authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     payload = verify_token(token)
     
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
+            detail="Invalid or expired authentication token. Please log in again.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    user_id: Optional[int] = payload.get("sub")
-    if user_id is None:
+    user_id_str: Optional[str] = payload.get("sub")
+    if user_id_str is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
+            detail="Invalid token format. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Convert string user ID back to integer for database query
+    try:
+        user_id = int(user_id_str)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token format. Please log in again.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -45,7 +69,7 @@ async def get_current_user(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="User not found. Please log in again.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     

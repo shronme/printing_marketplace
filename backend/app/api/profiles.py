@@ -35,9 +35,7 @@ async def get_my_profile(
     user_role = UserRole(current_user.role)
     
     if user_role == UserRole.CUSTOMER:
-        profile = db.query(CustomerProfile).filter(
-            CustomerProfile.user_id == current_user.id
-        ).first()
+        profile = current_user.customer_profile
         return ProfileResponse(
             customer_profile=CustomerProfileResponse.model_validate(profile) if profile else None
         )
@@ -69,25 +67,36 @@ async def create_or_update_customer_profile(
     Create or update customer profile.
     
     Only accessible by users with CUSTOMER role.
-    If profile exists, it will be updated; otherwise, a new one is created.
+    If user already has a profile, it will be updated.
+    If user doesn't have a profile, they will be linked to an existing profile with the same company_name,
+    or a new profile will be created if no matching company_name exists.
     """
-    # Check if profile already exists
-    profile = db.query(CustomerProfile).filter(
-        CustomerProfile.user_id == current_user.id
-    ).first()
+    # Check if user already has a profile
+    profile = current_user.customer_profile
     
     if profile is None:
-        # Create new profile
-        profile = CustomerProfile(
-            user_id=current_user.id,
-            company_name=profile_data.company_name,
-            contact_name=profile_data.contact_name,
-            phone=profile_data.phone,
-            address=profile_data.address
-        )
-        db.add(profile)
+        # Check if a profile with this company_name already exists
+        existing_profile = db.query(CustomerProfile).filter(
+            CustomerProfile.company_name == profile_data.company_name
+        ).first()
+        
+        if existing_profile is not None:
+            # Link user to existing profile
+            current_user.customer_profile_id = existing_profile.id
+            profile = existing_profile
+        else:
+            # Create new profile
+            profile = CustomerProfile(
+                company_name=profile_data.company_name,
+                contact_name=profile_data.contact_name,
+                phone=profile_data.phone,
+                address=profile_data.address
+            )
+            db.add(profile)
+            db.flush()  # Flush to get the profile ID
+            current_user.customer_profile_id = profile.id
     else:
-        # Update existing profile
+        # Update existing profile (shared by all users in the same company)
         if profile_data.company_name is not None:
             profile.company_name = profile_data.company_name
         if profile_data.contact_name is not None:

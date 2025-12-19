@@ -26,3 +26,44 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+/* Global form input styles */
+@layer base {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"],
+  input[type="month"],
+  input[type="week"],
+  textarea,
+  select {
+    @apply text-gray-900 bg-white;
+  }
+  
+  /* Ensure disabled inputs still have visible text */
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    @apply text-gray-600 bg-gray-50;
+  }
+}
+
+/* Reusable form input component classes */
+@layer components {
+  .form-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  
+  .form-textarea {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  
+  .form-select {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+}
+

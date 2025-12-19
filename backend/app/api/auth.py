@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.persistence.database import get_db
 from app.models.user import User
+from app.models.customer_profile import CustomerProfile
 from app.schemas import LoginRequest, LoginResponse, LogoutResponse, UserResponse
 from app.utils.auth import create_access_token
 from app.utils.dependencies import get_current_user
@@ -22,11 +23,21 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
     If the email doesn't exist, a new user is created with the specified role
     (defaults to CUSTOMER if not provided).
     
+    For CUSTOMER role signup, company_name is required.
+    Users with the same company_name will be linked to the same customer profile.
+    
     Returns:
         JWT access token and user information
     """
     # Determine role - default to CUSTOMER if not provided
     role = request.role if request.role is not None else UserRole.CUSTOMER
+    
+    # Validate company_name for CUSTOMER role signup
+    if role == UserRole.CUSTOMER and not request.company_name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="company_name is required for CUSTOMER role signup"
+        )
     
     # Check if user exists
     user = db.query(User).filter(User.email == request.email).first()
@@ -40,10 +51,29 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
+        
+        # For CUSTOMER role, create or link to existing customer profile
+        if role == UserRole.CUSTOMER:
+            # Check if a customer profile with this company_name already exists
+            customer_profile = db.query(CustomerProfile).filter(
+                CustomerProfile.company_name == request.company_name
+            ).first()
+            
+            if customer_profile is None:
+                # Create new customer profile
+                customer_profile = CustomerProfile(
+                    company_name=request.company_name
+                )
+                db.add(customer_profile)
+                db.flush()  # Flush to get the profile ID
+            
+            # Link user to customer profile
+            user.customer_profile_id = customer_profile.id
+            db.commit()
     
     # Create JWT token
     token_data = {
-        "sub": user.id,  # subject (user ID)
+        "sub": str(user.id),  # subject (user ID) - must be a string for JWT
         "email": user.email,
         "role": user.role
     }

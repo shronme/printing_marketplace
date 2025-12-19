@@ -13,10 +13,9 @@ class CustomerProfile(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     uuid = Column(UUID(as_uuid=False), unique=True, nullable=False, default=lambda: str(uuid_lib.uuid4()), index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
     
     # Contact information
-    company_name = Column(String, nullable=True)
+    company_name = Column(String, nullable=False, unique=True, index=True)  # Required, unique, indexed for lookups
     contact_name = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     address = Column(Text, nullable=True)
@@ -25,11 +24,9 @@ class CustomerProfile(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    user = relationship("User", back_populates="customer_profile")
+    users = relationship("User", back_populates="customer_profile", foreign_keys="User.customer_profile_id")  # Many users per profile
     jobs = relationship(
         "PrintingJob", 
-        back_populates="customer_profile", 
-        primaryjoin="PrintingJob.customer_id == CustomerProfile.user_id",
-        viewonly=True
+        back_populates="customer_profile"
     )
 

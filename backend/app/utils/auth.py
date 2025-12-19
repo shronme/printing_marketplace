@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 from typing import Optional
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
 import os
 from dotenv import load_dotenv
 
@@ -46,9 +46,22 @@ def verify_token(token: str) -> Optional[dict]:
     Returns:
         Decoded token payload if valid, None otherwise
     """
+    if not token or not isinstance(token, str):
+        print(f"Invalid token type or empty token")
+        return None
+    
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except ExpiredSignatureError:
+        print(f"JWT token has expired")
+        return None
+    except JWTError as e:
+        # Log the error for debugging (in production, you might want to use a logger)
+        print(f"JWT verification failed: {type(e).__name__}: {str(e)}")
+        return None
+    except Exception as e:
+        # Catch any other exceptions (e.g., malformed token)
+        print(f"Token verification error: {type(e).__name__}: {str(e)}")
         return None
 
