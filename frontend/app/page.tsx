@@ -24,6 +24,20 @@ export default function Home() {
             Sign Up
           </Link>
         </div>
+        <div className="mt-8 flex gap-4 justify-center">
+          <Link
+            href="/customer/dashboard"
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+          >
+            Customer Dashboard
+          </Link>
+          <Link
+            href="/printer/dashboard"
+            className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+          >
+            Printer Dashboard
+          </Link>
+        </div>
       </div>
     </main>
   )

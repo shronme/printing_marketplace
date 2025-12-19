@@ -5,9 +5,9 @@ Next.js frontend application for the printing marketplace platform.
 ## Architecture
 
 Single Next.js app with **role-based routing**:
-- `app/(auth)/` - Shared authentication pages
-- `app/(customer)/` - Customer-only routes
-- `app/(printer)/` - Printer-only routes
+- `app/(auth)/` - Shared authentication pages (route groups for organization)
+- `app/customer/` - Customer routes (`/customer/dashboard`, `/customer/jobs`)
+- `app/printer/` - Printer routes (`/printer/dashboard`, `/printer/jobs`, `/printer/bids`)
 - `app/` - Public pages
 
 ## Local Development
@@ -39,13 +39,13 @@ Set environment variable:
 - `/auth/login` - Login page
 - `/auth/signup` - Signup page
 
-### Customer Routes (protected)
+### Customer Routes
 - `/customer/dashboard` - Customer dashboard
 - `/customer/jobs` - My jobs
-- `/customer/jobs/new` - Create new job
-- `/customer/bids` - View bids on my jobs
+- `/customer/jobs/new` - Create new job (to be implemented)
+- `/customer/bids` - View bids on my jobs (to be implemented)
 
-### Printer Routes (protected)
+### Printer Routes
 - `/printer/dashboard` - Printer dashboard
 - `/printer/jobs` - Available jobs
 - `/printer/bids` - My bids
