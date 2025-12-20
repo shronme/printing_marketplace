@@ -15,13 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Copy and set permissions for entrypoint scripts
-COPY start.sh /start.sh
-COPY start.py /start.py
-RUN chmod +x /start.sh /start.py
-
 # Expose port
 EXPOSE 3000
 
-# Use Python startup script (better log visibility in Railway)
-CMD ["python", "/start.py"]
+# Run migrations then start server
+# Use shell form to allow command chaining with &&
+CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-3000}
