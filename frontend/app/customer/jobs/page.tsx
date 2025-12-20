@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { listJobs, type PrintingJob, type JobState } from '@/lib/api'
+import { formatDateShort } from '@/lib/utils'
 
 export default function CustomerJobsPage() {
   const [jobs, setJobs] = useState<PrintingJob[]>([])
@@ -45,16 +46,6 @@ export default function CustomerJobsPage() {
     }
   }
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -127,14 +118,14 @@ export default function CustomerJobsPage() {
                       <span className="font-medium">Quantity:</span> {job.quantity.toLocaleString()}
                     </div>
                     <div>
-                      <span className="font-medium">Due Date:</span> {formatDate(job.due_date)}
+                      <span className="font-medium">Due Date:</span> {formatDateShort(job.due_date)}
                     </div>
                     <div>
-                      <span className="font-medium">Created:</span> {formatDate(job.created_at)}
+                      <span className="font-medium">Created:</span> {formatDateShort(job.created_at)}
                     </div>
                     {job.published_at && (
                       <div>
-                        <span className="font-medium">Published:</span> {formatDate(job.published_at)}
+                        <span className="font-medium">Published:</span> {formatDateShort(job.published_at)}
                       </div>
                     )}
                   </div>

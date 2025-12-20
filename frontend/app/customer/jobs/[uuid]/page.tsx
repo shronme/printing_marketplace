@@ -14,6 +14,7 @@ import {
   type PrintingJobUpdate,
   type ProductType 
 } from '@/lib/api'
+import { formatDate } from '@/lib/utils'
 
 export default function JobDetailPage() {
   const router = useRouter()
@@ -168,16 +169,6 @@ export default function JobDetailPage() {
     }
   }
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
 
   if (loading) {
     return (
@@ -497,6 +488,8 @@ export default function JobDetailPage() {
                 className="inline-flex items-center gap-2 text-blue-600 hover:underline"
                 onClick={async (e) => {
                   // Add authentication header to the download
+                  if (typeof window === 'undefined') return
+                  
                   const token = localStorage.getItem('auth_token')
                   if (token && job.file_url) {
                     e.preventDefault()

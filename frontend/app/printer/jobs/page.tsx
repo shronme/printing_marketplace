@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getMatchingJobs, type PrintingJob } from '@/lib/api'
+import { formatDateShort, useIsMounted } from '@/lib/utils'
 
 export default function PrinterJobsPage() {
   const [jobs, setJobs] = useState<PrintingJob[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const isMounted = useIsMounted()
 
   useEffect(() => {
     loadJobs()
@@ -26,19 +28,9 @@ export default function PrinterJobsPage() {
     }
   }
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
-
   const formatTimeRemaining = (endDate: string | null) => {
-    if (!endDate) return 'N/A'
+    if (!endDate || !isMounted) return 'Calculating...'
+    
     const now = new Date()
     const end = new Date(endDate)
     const diff = end.getTime() - now.getTime()
@@ -52,6 +44,11 @@ export default function PrinterJobsPage() {
     if (days > 0) return `${days}d ${hours}h remaining`
     if (hours > 0) return `${hours}h ${minutes}m remaining`
     return `${minutes}m remaining`
+  }
+  
+  const isBiddingOpen = (endDate: string | null) => {
+    if (!endDate || !isMounted) return false
+    return new Date(endDate) > new Date()
   }
 
   return (
@@ -111,14 +108,14 @@ export default function PrinterJobsPage() {
                       <span className="font-medium">Quantity:</span> {job.quantity.toLocaleString()}
                     </div>
                     <div>
-                      <span className="font-medium">Due Date:</span> {formatDate(job.due_date)}
+                      <span className="font-medium">Due Date:</span> {formatDateShort(job.due_date)}
                     </div>
                     <div>
-                      <span className="font-medium">Bidding Ends:</span> {formatDate(job.bidding_ends_at)}
+                      <span className="font-medium">Bidding Ends:</span> {formatDateShort(job.bidding_ends_at)}
                     </div>
                     <div>
                       <span className="font-medium">Time Remaining:</span>{' '}
-                      <span className={job.bidding_ends_at && new Date(job.bidding_ends_at) > new Date() ? 'text-green-600 font-semibold' : 'text-red-600'}>
+                      <span className={isBiddingOpen(job.bidding_ends_at) ? 'text-green-600 font-semibold' : 'text-red-600'}>
                         {formatTimeRemaining(job.bidding_ends_at)}
                       </span>
                     </div>
