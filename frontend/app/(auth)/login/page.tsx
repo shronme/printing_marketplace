@@ -34,9 +34,10 @@ export default function LoginPage() {
       const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.'
       const errorStatus = (err as Error & { status?: number })?.status
       
-      // Check if error is 404 (user not found) - redirect to setup
-      if (errorStatus === 404 || errorMessage.toLowerCase().includes('not found')) {
-        router.push(`/setup?email=${encodeURIComponent(email.trim())}`)
+      // Check if error is 404 (user not found) - redirect to setup immediately
+      if (errorStatus === 404 || errorMessage.toLowerCase().includes('not found') || errorMessage.toLowerCase().includes('please sign up')) {
+        // Redirect immediately without showing error
+        router.replace(`/setup?email=${encodeURIComponent(email.trim())}`)
         return
       }
       
