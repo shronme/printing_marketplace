@@ -34,14 +34,12 @@ if config.config_file_name is not None:
 
 # Get database URL from environment
 database_url = os.getenv("DATABASE_URL", "")
-if not database_url:
-    raise ValueError("DATABASE_URL environment variable is not set")
-
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
 # Override sqlalchemy.url with environment variable
-config.set_main_option("sqlalchemy.url", database_url)
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -84,33 +82,19 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    try:
-        # Get the database URL from config
-        url = config.get_main_option("sqlalchemy.url")
-        
-        # Create engine with connection timeout (30 seconds)
-        from sqlalchemy import create_engine
-        connectable = create_engine(
-            url,
-            poolclass=pool.NullPool,
-            connect_args={
-                "connect_timeout": 30,
-                "options": "-c statement_timeout=60000"  # 60 second statement timeout
-            }
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection, target_metadata=target_metadata
         )
 
-        with connectable.connect() as connection:
-            context.configure(
-                connection=connection, target_metadata=target_metadata
-            )
-
-            with context.begin_transaction():
-                context.run_migrations()
-    except Exception as e:
-        print(f"ERROR: Migration failed: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
-        raise
+        with context.begin_transaction():
+            context.run_migrations()
 
 
 if context.is_offline_mode():
