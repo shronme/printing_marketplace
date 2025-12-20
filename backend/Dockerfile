@@ -20,4 +20,4 @@ EXPOSE 3000
 
 # Run migrations then start server
 # Use shell form to allow command chaining with &&
-CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-3000}
+CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-3000} --log-level info --access-log --use-colors false

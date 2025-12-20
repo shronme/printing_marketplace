@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 import io
+import logging
 
 from app.persistence.database import get_db
 from app.models.user import User
@@ -17,6 +18,8 @@ from app.utils.storage import (
     file_exists,
     get_file_content
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/uploads", tags=["uploads"])
 
@@ -102,6 +105,10 @@ async def upload_job_file(
     try:
         upload_file(contents, file_key, content_type)
     except Exception as e:
+        logger.error(
+            f"Failed to upload file {filename} to storage",
+            exc_info=True
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to upload file: {str(e)}"
@@ -170,6 +177,10 @@ async def get_file(
             }
         )
     except Exception as e:
+        logger.error(
+            f"Failed to retrieve file {file_key} from storage",
+            exc_info=True
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve file: {str(e)}"
