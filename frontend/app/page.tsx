@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { login, type LoginRequest } from '@/lib/api'
 
@@ -10,6 +10,12 @@ export default function Home() {
   const [role, setRole] = useState<'CUSTOMER' | 'PRINTER'>('CUSTOMER')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [mounted, setMounted] = useState(false)
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,7 +89,7 @@ export default function Home() {
               <option value="PRINTER">Printer</option>
             </select>
           </div>
-          {error && (
+          {mounted && error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
             </div>
