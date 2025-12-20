@@ -2,12 +2,17 @@
  * API client for backend communication
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 
 // Types
 export interface LoginRequest {
   email: string
-  role?: 'CUSTOMER' | 'PRINTER'
+  role?: 'CUSTOMER' | 'PRINTER'  // Optional: if provided, validates against user's role
+}
+
+export interface SignupRequest {
+  email: string
+  role: 'CUSTOMER' | 'PRINTER'  // Required for signup
   company_name?: string  // Required for CUSTOMER role signup
 }
 
@@ -150,8 +155,9 @@ export async function apiRequest<T>(
       removeUser()
       
       // Throw error with a flag that indicates auth failure
-      const error = new Error('Your session has expired. Please log in again.') as Error & { isAuthError?: boolean }
+      const error = new Error('Your session has expired. Please log in again.') as Error & { isAuthError?: boolean; status?: number }
       error.isAuthError = true
+      error.status = response.status
       throw error
     }
     
@@ -163,7 +169,9 @@ export async function apiRequest<T>(
     } catch {
       // Use default error message if parsing fails
     }
-    throw new Error(errorMessage)
+    const error = new Error(errorMessage) as Error & { status?: number }
+    error.status = response.status
+    throw error
   }
 
   return response.json()
@@ -177,6 +185,19 @@ export async function checkHealth() {
 // Authentication API
 export async function login(request: LoginRequest): Promise<LoginResponse> {
   const response = await apiRequest<LoginResponse>('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  })
+  
+  // Store token and user data
+  setAuthToken(response.access_token)
+  setUser(response.user)
+  
+  return response
+}
+
+export async function signup(request: SignupRequest): Promise<LoginResponse> {
+  const response = await apiRequest<LoginResponse>('/api/auth/signup', {
     method: 'POST',
     body: JSON.stringify(request),
   })

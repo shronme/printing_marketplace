@@ -10,8 +10,7 @@ from app.utils.enums import UserRole
 class LoginRequest(BaseModel):
     """Request schema for login endpoint."""
     email: EmailStr
-    role: Optional[UserRole] = None  # Optional: if not provided, defaults to CUSTOMER
-    company_name: Optional[str] = None  # Required for CUSTOMER role signup
+    role: Optional[UserRole] = None  # Optional: if provided, validates against user's role
 
 
 class UserResponse(BaseModel):
@@ -31,6 +30,13 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+
+class SignupRequest(BaseModel):
+    """Request schema for signup endpoint."""
+    email: EmailStr
+    role: UserRole  # Required for signup
+    company_name: Optional[str] = None  # Required for CUSTOMER role signup
 
 
 class LogoutResponse(BaseModel):

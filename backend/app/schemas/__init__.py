@@ -1,6 +1,6 @@
 """Schemas package - exports all Pydantic schemas."""
 
-from app.schemas.auth import LoginRequest, LoginResponse, LogoutResponse, UserResponse
+from app.schemas.auth import LoginRequest, LoginResponse, LogoutResponse, SignupRequest, UserResponse
 from app.schemas.customer_profile import CustomerProfileCreate, CustomerProfileResponse
 from app.schemas.printer_profile import PrinterProfileCreate, PrinterProfileResponse
 from app.schemas.profile import ProfileResponse
@@ -16,6 +16,7 @@ __all__ = [
     "LoginRequest",
     "LoginResponse",
     "LogoutResponse",
+    "SignupRequest",
     "UserResponse",
     # Customer profile schemas
     "CustomerProfileCreate",

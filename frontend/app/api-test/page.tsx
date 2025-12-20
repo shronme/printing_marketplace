@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { checkHealth } from '@/lib/api'
+import { checkHealth, API_URL } from '@/lib/api'
 
 export default function ApiTestPage() {
   const [status, setStatus] = useState<string>('')
@@ -40,7 +40,7 @@ export default function ApiTestPage() {
             </pre>
           )}
           <div className="text-sm text-gray-500">
-            <p>API URL: {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}</p>
+            <p>API URL: {API_URL}</p>
           </div>
         </div>
       </div>
