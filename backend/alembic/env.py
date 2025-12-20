@@ -35,18 +35,13 @@ if config.config_file_name is not None:
 # Get database URL from environment
 database_url = os.getenv("DATABASE_URL", "")
 if not database_url:
-    print("ERROR: DATABASE_URL environment variable is not set!", flush=True)
     raise ValueError("DATABASE_URL environment variable is not set")
-
-print(f"DEBUG: DATABASE_URL found (length: {len(database_url)})", flush=True)
 
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
-    print("DEBUG: Converted postgres:// to postgresql://", flush=True)
 
 # Override sqlalchemy.url with environment variable
 config.set_main_option("sqlalchemy.url", database_url)
-print("DEBUG: Database URL configured for Alembic", flush=True)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -90,7 +85,6 @@ def run_migrations_online() -> None:
 
     """
     try:
-        print("DEBUG: Creating database engine...", flush=True)
         # Get the database URL from config
         url = config.get_main_option("sqlalchemy.url")
         
@@ -104,18 +98,14 @@ def run_migrations_online() -> None:
                 "options": "-c statement_timeout=60000"  # 60 second statement timeout
             }
         )
-        print("DEBUG: Database engine created, attempting connection...", flush=True)
 
         with connectable.connect() as connection:
-            print("DEBUG: Database connection established", flush=True)
             context.configure(
                 connection=connection, target_metadata=target_metadata
             )
-            print("DEBUG: Alembic context configured, running migrations...", flush=True)
 
             with context.begin_transaction():
                 context.run_migrations()
-            print("DEBUG: Migrations completed successfully", flush=True)
     except Exception as e:
         print(f"ERROR: Migration failed: {e}", flush=True)
         import traceback
