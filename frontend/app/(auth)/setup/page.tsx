@@ -13,11 +13,15 @@ export default function SetupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Pre-fill email from query parameter
+  // Pre-fill email and role from query parameters
   useEffect(() => {
     const emailParam = searchParams.get('email')
     if (emailParam) {
       setEmail(decodeURIComponent(emailParam))
+    }
+    const roleParam = searchParams.get('role')
+    if (roleParam && (roleParam === 'CUSTOMER' || roleParam === 'PRINTER')) {
+      setRole(roleParam as 'CUSTOMER' | 'PRINTER')
     }
   }, [searchParams])
 
